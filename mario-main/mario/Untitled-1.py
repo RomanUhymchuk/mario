@@ -15,16 +15,31 @@ class GameSprite(sprite.Sprite):
         window.blit(self.image,(self.rect.x , self.rect.y)) 
 
 class Player(GameSprite):
-    def update_r(self):
+    def update(self):
+        global isJump ,jumpCount ,vel 
         keys = key.get_pressed()
         if keys[K_a] and self.rect.x > 5:
             self.rect.x -= self.speed
         if keys[K_d] and self.rect.x :
             self.rect.x += self.speed
+        
+        if isJump:
+            if jumpCount >= -10:
+                self.rect.y -= (jumpCount * abs(jumpCount)) * 0.5
+                jumpCount -= 1
+            else: 
+                jumpCount = 10
+                isJump = False
 
-        if keys [K_SPACE] and self.rect.y > -5:      
-            self.rect.y -= self.speed
-  
+        if not(isJump): 
+            if keys[K_a] and self.rect.x > vel:
+                self.rect.x += vel
+
+            if keys[K_d] and self.rect.x > vel:
+                self.rect.x += vel
+
+            if keys[K_SPACE]:
+                isJump = True
 win_width = 1200
 win_height = 600
 
@@ -33,8 +48,7 @@ win_height = 600
 window = display.set_mode((win_width, win_height))
 back = ("1661354146_1-kartinkin-net-p-fon-mario-dlya-skretcha-krasivo-1.jpg") 
 backk = transform.scale(image.load("1661354146_1-kartinkin-net-p-fon-mario-dlya-skretcha-krasivo-1.jpg"),(win_width, win_height))  
-window.blit(backk,(0,0))
- 
+
 #прапорці, що відповідають за стан гри
 game = True
 finish = False
@@ -46,16 +60,23 @@ mario = Player('mario-main/mario/Нова папка/smallmariosheet-removebg-pr
 
 
 
+vel = 5
+isJump = False
+jumpCount = 10
 
+run = True
 
+while run:
+    time.delay(100)
 
-while game:
     for e in event.get():
         if e.type == QUIT:
-                game = False 
-    if finish != True:
+            run = False
         window.blit(backk,(0,0))
-        mario.update_r()
+   
+    
+
+        mario.update()
 
         mario.reset()
        
