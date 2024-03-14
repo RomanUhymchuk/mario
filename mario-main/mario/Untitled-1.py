@@ -1,7 +1,17 @@
 from pygame import *
 from random import randint 
-class GameSprite(sprite.Sprite): 
+#make window
+win_width = 1200
+win_height = 600
+window = display.set_mode((1200, 600))
 
+player_l = [image.load('mario-main/mario/Нова папка (4)/mariosheet-removebg-preview_1.png'), image.load('mario-main/mario/Нова папка (4)/mariosheet-removebg-preview_3.png')]
+
+player_r = [image.load('mario-main/mario/Нова папка (4)/mariosheet-removebg-preview_13.png'), image.load('mario-main/mario/Нова папка (4)/mariosheet-removebg-preview_14.png')]
+
+#make class
+class GameSprite(sprite.Sprite): 
+    init()
     def __init__(self, player_image , player_x , player_y, size_x, size_y, player_speed): 
         sprite.Sprite.__init__(self) 
         self.image = transform.scale(image.load(player_image),(50 , 50))  
@@ -11,43 +21,69 @@ class GameSprite(sprite.Sprite):
         self.rect.y = player_y 
         self.size_x = size_x
         self.size_y = size_y
-
-#ФУНКЦІЇ ПЕРСОНАЖІВ 
+        self.left = False
+        self.right = False
+        self.count = 0
+ 
     def reset (self): 
         window.blit(self.image,(self.rect.x , self.rect.y)) 
-
+#class player
 class Player(GameSprite):
     def update(self):
 
         keys = key.get_pressed()
         if keys[K_a] and self.rect.x:
             self.rect.x -= self.speed
+            self.left = True
+            self.right = False
         if keys[K_d] and self.rect.x :
             self.rect.x += self.speed
-class Block(GameSprite):
-    pass
-# Ініціалізація Pygame
+            self.left = False
+            self.right = True
+        else:            
+            self.right = self.left = False
+
+
+    def animation(self):
+        if self.left:
+            self.count = (self.count + 1) % len(player_l)  
+            window.blit(player_l[self.count], (self.rect.x, self.rect.y))
+        elif self.right:
+            self.count = (self.count + 1) % len(player_l)  
+            window.blit(player_r[self.count], (self.rect.x, self.rect.y))
+        else:
+            self.count=0
+            window.blit(player_r[self.count], (self.rect.x, self.rect.y))
+
+back = transform.scale(image.load("1661354146_1-kartinkin-net-p-fon-mario-dlya-skretcha-krasivo-1.jpg"),(win_width, win_height))  
+display.set_caption("Mario Game ")
+#class enemy
+mario = Player('mario-main/mario/Нова папка (4)/mariosheet-removebg-preview_1.png', 250, 470, 10, 10, 3) 
+
+class Enemy (GameSprite):
+    def update(self):
+        self.rect.y += self.speed 
+        #znukae aikscho diyde  do kraay ekrana
+        if self.rect.y < 0:
+            self.kill()
+
+
 class Enemy(GameSprite): 
     def update(self): 
         self.rect.x -= self.speed 
-        global lost  
- 
         if self.rect.x> win_width: 
             self.rect.x = randint(80, win_height +80) 
             self.rect.x = 0 
-           
-init()
 
-# Встановлення розмірів вікна
-win_width = 1200
-win_height = 600
-window = display.set_mode((1200, 600))
-back = transform.scale(image.load("1661354146_1-kartinkin-net-p-fon-mario-dlya-skretcha-krasivo-1.jpg"),(win_width, win_height))  
-display.set_caption("Mario Game ")
+
+bullet = Enemy('mario-main/imgonline-com-ua-Mirror-gZ5dwLoVeP3Q5o-removebg-preview.png',0,0,0,0,4)
+monsters = sprite.Group()
+for i in range(1, 3): 
+    monster = Enemy(bullet, randint(80, win_width - 80), -40, 80, 50, randint(1, 5)) 
+    monsters.add(monster)            
 # Створення гравця
-mario = Player('mario-main/mario/Нова папка/smallmariosheet-removebg-preview_1.png', 100, 470, 10, 10, 3) 
-#block = Block("mario-main/mapsheet-removebg-previewgggggg.png", 300, 470, 10, 10, 3)
-Bullet = Enemy('mario-main/imgonline-com-ua-Mirror-gZ5dwLoVeP3Q5o-removebg-preview.png',1200, 470, 10, 10, 3)
+
+
 
 # Змінні для стрибків
 jump_count = 8
@@ -56,6 +92,9 @@ jumping = False
 
 # Переміщення фону
 x_bg = 0 
+
+x_bg = 0
+y_bg=0
 
 # Запуск гри
 run = True
@@ -78,6 +117,9 @@ while run:
             neg = 1
             if jump_count < 0:
                 neg = -1
+
+
+
             mario.rect.y -= (jump_count ** 2) * 0.5 * neg
             jump_count -= 1
         else:
@@ -87,16 +129,6 @@ while run:
     # Перевірка, щоб персонаж не виходив за межі екрану
     if mario.rect.y > 470:
         mario.rect.y = 470
-
-        Bullet.kill()
-    mario.update()
-    Bullet.update()
-    #block.update()
-    mario.reset()
-    Bullet.reset()
-    #block.reset()
-
-    # Перевірка закінчення фону в обидва боки
     if x_bg >= win_width or x_bg <= -win_width:
         x_bg = 0
     
@@ -105,6 +137,14 @@ while run:
         x_bg += 10
     if keys[K_d]:
         x_bg -= 10
+
+    mario.update()
+    bullet.update()
+    mario.reset()
+    bullet.reset()
+   
+
+    # Перевірка закінчення фону в обидва боки
 
     time.delay(30)
     display.update()
