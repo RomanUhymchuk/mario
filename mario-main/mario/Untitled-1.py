@@ -1,5 +1,9 @@
 from pygame import *
 from random import randint 
+mixer.init() 
+mixer.music.load("mario-main/01. Ground Theme.mp3") 
+mixer.music.play() 
+fire = mixer.Sound("mario-main/01. Ground Theme.mp3") 
 #make window
 win_width = 1200
 win_height = 600
@@ -33,6 +37,8 @@ class Player(GameSprite):
 
         keys = key.get_pressed()
         if keys[K_a] and self.rect.x:
+            if self.rect.x < 1:
+                self.rect.x = 1
             self.rect.x -= self.speed
             self.left = True
             self.right = False
@@ -76,10 +82,10 @@ class Enemy(GameSprite):
             self.rect.x = 0 
 
 
-bullet = Enemy('mario-main/imgonline-com-ua-Mirror-gZ5dwLoVeP3Q5o-removebg-preview.png',0,0,0,0,4)
+bullet = 'mario-main/imgonline-com-ua-Mirror-gZ5dwLoVeP3Q5o-removebg-preview.png'
 monsters = sprite.Group()
 for i in range(1, 3): 
-    monster = Enemy(bullet, randint(80, win_width - 80), -40, 80, 50, randint(1, 5)) 
+    monster = Enemy(bullet, randint(800, 1200), 470, 80, 50, randint(1, 5)) 
     monsters.add(monster)            
 # Створення гравця
 
@@ -94,7 +100,7 @@ jumping = False
 x_bg = 0 
 
 x_bg = 0
-y_bg=0
+y_bg = 0
 
 # Запуск гри
 run = True
@@ -133,15 +139,14 @@ while run:
         x_bg = 0
     
     # Переміщення фону
-    if keys[K_a]:
-        x_bg += 10
+
     if keys[K_d]:
         x_bg -= 10
 
     mario.update()
-    bullet.update()
+    monsters.update()
     mario.reset()
-    bullet.reset()
+    monsters.draw(window)
    
 
     # Перевірка закінчення фону в обидва боки
