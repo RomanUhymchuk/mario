@@ -3,7 +3,7 @@ from random import randint
 mixer.init() 
 mixer.music.load("mario-main/01. Ground Theme.mp3") 
 mixer.music.play() 
-fire = mixer.Sound("mario-main/01. Ground Theme.mp3") 
+jump= mixer.Sound("sfx-13 (1).mp3") 
 #make window
 win_width = 1200
 win_height = 600
@@ -116,18 +116,16 @@ while run:
 
     if not jumping:
         if keys[K_SPACE]:
-            jumping = True
-
+            jumping = True 
+            jump.play() 
     else:
         if jump_count >= -jump_height:
             neg = 1
             if jump_count < 0:
                 neg = -1
 
-
-
             mario.rect.y -= (jump_count ** 2) * 0.5 * neg
-            jump_count -= 1
+            jump_count -= 0.8
         else:
             jumping = False
             jump_count = jump_height
