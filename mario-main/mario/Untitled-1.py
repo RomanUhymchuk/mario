@@ -1,7 +1,7 @@
 from pygame import *
 from random import randint 
 mixer.init() 
-mixer.music.load("mario-main/01. Ground Theme.mp3") 
+#mixer.music.load("mario-main/01. Ground Theme.mp3") 
 mixer.music.play() 
 jump= mixer.Sound("sfx-13.mp3") 
 #make window
@@ -60,6 +60,16 @@ class Player(GameSprite):
         else:
             self.count=0
             window.blit(player_r[self.count], (self.rect.x, self.rect.y))
+    def check_collisions_down(self):
+        for block in blocks:
+            if self.rect.colliderect(block.rect):
+                    # Перевірте, чи гравець опинився вгорі блоку
+                if self.rect.bottom >= block.rect.top and self.rect.bottom <= block.rect.bottom:
+                        # Змініть позицію гравця так, щоб він стояв на верхній грані блоку
+                    self.rect.bottom = block.rect.top
+            if not self.rect.colliderect(block.rect): 
+                if self.rect.bottom <= block.rect.top and self.rect.bottom >= block.rect.bottom:
+
 
 back = transform.scale(image.load("1661354146_1-kartinkin-net-p-fon-mario-dlya-skretcha-krasivo-1.jpg"),(win_width, win_height))  
 display.set_caption("Mario Game ")
@@ -82,6 +92,7 @@ class Enemy(GameSprite):
             self.rect.x = 0 
         if self.rect.x == 0:
             self.kill()
+
 score = 0
 lakiblock_x=0
 lakiblock = Enemy("wip-new-question-block-animation-made-for-fan-made-mario-v0-5unqv87oj8y91.png", 550, 400, 30,30,0)
@@ -91,13 +102,25 @@ blockcegla = "1692637191_art-oir-mobi-p-mario-kirpichiki-arti-pinterest-2.png"
 mariojump = "mario-main/mario/Нова папка (4)/mariosheet-removebg-preview_7.png"
 font1 = font.Font(None,80)
 text_lose = font1.render("YOU LOSE" ,True ,(255, 0, 0))
+font3 = font.Font(None,80) 
+text_win = font3.render("YOU WIN" ,True ,(0, 255, 0))
+
 font2 = font.Font(None,50)
-text_score = font2.render("YOUR SCORE",score ,True ,(0 , 255, 0))
+text_score = font2.render("YOUR SCORE" +  str(score)  ,True ,(0 , 255, 0))
 window.blit(text_score, (1100, 400))
 for i in range(1,8): 
     monster = Enemy(bullet, 600,1200, 50, 50, 5) 
     monsters.add(monster) 
-         
+
+if monster.rect.x <=0:
+    for i in range(1): 
+        monster = Enemy(bullet, bullet_x-100, 470, 50, 50, 5) 
+        monsters.add(monster) 
+        monster = Enemy(bullet, bullet_x + 150 ,360, 50, 50, 5) 
+        monsters.add(monster)  
+        monster = Enemy(bullet, bullet_x -300 ,390, 50, 50, 5) 
+        monsters.add(monster)  
+
 #СТВОРЕННЯ БЛОКІВ
 blocks = sprite.Group()
 for i in range(1):
@@ -198,12 +221,14 @@ while run:
     for e in event.get():
         if e.type == QUIT:
             run = False
-
     if not jumping:
         if keys[K_SPACE]:
             jumping = True 
             jump.play() 
             mariojump
+
+
+
     else:
         if jump_count >= -jump_height:
             neg = 1
@@ -230,7 +255,7 @@ while run:
     monsters.draw(window)
 
     mario.update()
-
+    mario.check_collisions_down()
     lakiblock.update()
     lakiblock.reset()
     blocks.update()
