@@ -92,12 +92,12 @@ class Enemy(GameSprite):
 
 
 score = 0
-
+score_loss = 0
 lakiblock_x=randint(100,1100)
 lakiblock_y=randint(140,440)
 lakiblocks = sprite.Group()
 
-lakiblock = Enemy("wip-new-question-block-animation-made-for-fan-made-mario-v0-5unqv87oj8y91.png", lakiblock_x, lakiblock_y, 30,30,0)
+lakiblock = Player("wip-new-question-block-animation-made-for-fan-made-mario-v0-5unqv87oj8y91.png", lakiblock_x, lakiblock_y, 30,30,0)
 lakiblocks.add(lakiblock)
 
 bullet = 'mario-main/imgonline-com-ua-Mirror-gZ5dwLoVeP3Q5o-removebg-preview.png'
@@ -112,11 +112,9 @@ text_win = font3.render("YOU WIN" ,True ,(0, 255, 0))
 font2 = font.Font(None,50)
 text_score = font2.render("YOUR SCORE" +  str(score)  ,True ,(0 , 255, 0))
 window.blit(text_score, (1100, 400))
-for i in range(1,5): 
+for i in range(1,4): 
     monster = Enemy(bullet, randint(0,1200), randint(0,600), 50, 50, 5) 
     monsters.add(monster) 
-
-lakiblocks = sprite.Group
 
 lakiblocks.add(lakiblock)
 #СТВОРЕННЯ БЛОКІВ
@@ -204,13 +202,20 @@ y_bg = 0
 finish = False
 # Запуск гри
 run = True
-while run:
+if score_loss > 5 :
+    font1 = font.Font(None,80)
+    text_lose = font1.render("YOU LOSE" ,True ,(255, 0, 0))
 
+while run:
+    
+    font2 = font.Font(None,50)
+    text_score = font2.render("YOUR SCORE" +  str(score)  ,True ,(0 , 255, 0))
     keys = key.get_pressed()
     window.blit(back,(x_bg,0))
     window.blit(back,(x_bg - win_width,0))
     window.blit(back,(x_bg + win_width,0)) # Додана додаткова копія фону для оновлення в іншому напрямку
     window.blit(text_score, (900, 30))
+
     if sprite.spritecollide(mario, monsters, False):
         #run = False
         window.blit(text_lose, (200, 200))
@@ -223,8 +228,8 @@ while run:
     if not jumping:
         if keys[K_SPACE]:
             jumping = True 
-            jump.play() 
-            mariojump
+            # jump.play() 
+            # mariojump
 
     else:
         if jump_count >= -jump_height:
@@ -247,26 +252,43 @@ while run:
     # Переміщення фону
 
 
-
     monsters.update()
     monsters.draw(window)
-    lakiblocks.draw(window)
+     
     mario.update()
     mario.check_collisions_down(blocks)
+    lakiblocks.draw(window)
+    
     blocks.update()
     blocks.draw(window)
     mario.animation()
-    for block in blocks:
-            if lakiblock.rect.colliderect(block.rect):
-                if lakiblock.rect.bottom-5 >= block.rect.top and lakiblock.rect.bottom <= block.rect.bottom:
-                    lakiblock_x=randint(100,1100)
-                    lakiblock_y=randint(140,440)
-                if  not lakiblock.rect.bottom-5 >= block.rect.top and lakiblock.rect.bottom <= block.rect.bottom:
-                    lakiblock_x=randint(100,1100)
-                    lakiblock_y=randint(140,440)
+    if sprite.spritecollide(mario, lakiblocks, True):
+        lakiblock_x=randint(100,1100)
+        lakiblock_y=randint(140,440)
 
+        lakiblock = Player("wip-new-question-block-animation-made-for-fan-made-mario-v0-5unqv87oj8y91.png", lakiblock_x, lakiblock_y, 30,30,0)
+        lakiblocks.add(lakiblock)
+        score+=1
     
+        
+    for lakiblock in lakiblocks:
+        for block in blocks:
+            if lakiblock.rect.colliderect(block.rect):
+                if (lakiblock.rect.bottom  >= block.rect.top or 
+                    lakiblock.rect.bottom <= block.rect.bottom or
+                    lakiblock.rect.right >= block.rect.left or lakiblock.rect.left <= block.rect.right):
+                    lakiblock.rect.x = randint(100, 1100)
+                    lakiblock.rect.y = randint(140, 440)
+                    break
 
+    if monster.rect.x <=0:
+        for i in range(1): 
+            monster = Enemy(bullet, bullet_x-100, 470, 50, 50, 5) 
+            monsters.add(monster) 
+            monster = Enemy(bullet, bullet_x + 150 ,360, 50, 50, 5) 
+            monsters.add(monster)  
+            monster = Enemy(bullet, bullet_x -300 ,390, 50, 50, 5) 
+            monsters.add(monster)       
     # Перевірка закінчення фону в обидва боки
 
     time.delay(40)
