@@ -2,7 +2,7 @@ from pygame import *
 from random import randint 
 mixer.init() 
 #mixer.music.load("mario-main/01. Ground Theme.mp3") 
-mixer.music.play() 
+#mixer.music.play() 
 jump= mixer.Sound("sfx-13.mp3") 
 #make window
 win_width = 1200
@@ -60,15 +60,15 @@ class Player(GameSprite):
         else:
             self.count=0
             window.blit(player_r[self.count], (self.rect.x, self.rect.y))
-    def check_collisions_down(self):
+    def check_collisions_down(self, blocks):
+        is_on_ground = False
         for block in blocks:
             if self.rect.colliderect(block.rect):
-                    # Перевірте, чи гравець опинився вгорі блоку
-                if self.rect.bottom >= block.rect.top and self.rect.bottom <= block.rect.bottom:
-                        # Змініть позицію гравця так, щоб він стояв на верхній грані блоку
-                    self.rect.bottom = block.rect.top
-            if not self.rect.colliderect(block.rect): 
-                if self.rect.bottom <= block.rect.top and self.rect.bottom >= block.rect.bottom:
+                if self.rect.bottom-5 >= block.rect.top and self.rect.bottom <= block.rect.bottom:
+                    self.rect.bottom = block.rect.top+5
+                    is_on_ground = True
+        if not is_on_ground:
+            self.rect.y += 5
 
 
 back = transform.scale(image.load("1661354146_1-kartinkin-net-p-fon-mario-dlya-skretcha-krasivo-1.jpg"),(win_width, win_height))  
@@ -87,15 +87,19 @@ class Enemy (GameSprite):
 class Enemy(GameSprite): 
     def update(self): 
         self.rect.x -= self.speed 
-        if self.rect.x> win_width: 
-            self.rect.x = randint(80, win_height +80) 
-            self.rect.x = 0 
-        if self.rect.x == 0:
-            self.kill()
+        if self.rect.x < 0: 
+            self.rect.x = randint(80,1200) 
+
 
 score = 0
-lakiblock_x=0
-lakiblock = Enemy("wip-new-question-block-animation-made-for-fan-made-mario-v0-5unqv87oj8y91.png", 550, 400, 30,30,0)
+
+lakiblock_x=randint(100,1100)
+lakiblock_y=randint(140,440)
+lakiblocks = sprite.Group()
+
+lakiblock = Enemy("wip-new-question-block-animation-made-for-fan-made-mario-v0-5unqv87oj8y91.png", lakiblock_x, lakiblock_y, 30,30,0)
+lakiblocks.add(lakiblock)
+
 bullet = 'mario-main/imgonline-com-ua-Mirror-gZ5dwLoVeP3Q5o-removebg-preview.png'
 monsters = sprite.Group()
 blockcegla = "1692637191_art-oir-mobi-p-mario-kirpichiki-arti-pinterest-2.png"
@@ -108,19 +112,13 @@ text_win = font3.render("YOU WIN" ,True ,(0, 255, 0))
 font2 = font.Font(None,50)
 text_score = font2.render("YOUR SCORE" +  str(score)  ,True ,(0 , 255, 0))
 window.blit(text_score, (1100, 400))
-for i in range(1,8): 
-    monster = Enemy(bullet, 600,1200, 50, 50, 5) 
+for i in range(1,5): 
+    monster = Enemy(bullet, randint(0,1200), randint(0,600), 50, 50, 5) 
     monsters.add(monster) 
 
-if monster.rect.x <=0:
-    for i in range(1): 
-        monster = Enemy(bullet, bullet_x-100, 470, 50, 50, 5) 
-        monsters.add(monster) 
-        monster = Enemy(bullet, bullet_x + 150 ,360, 50, 50, 5) 
-        monsters.add(monster)  
-        monster = Enemy(bullet, bullet_x -300 ,390, 50, 50, 5) 
-        monsters.add(monster)  
+lakiblocks = sprite.Group
 
+lakiblocks.add(lakiblock)
 #СТВОРЕННЯ БЛОКІВ
 blocks = sprite.Group()
 for i in range(1):
@@ -207,6 +205,7 @@ finish = False
 # Запуск гри
 run = True
 while run:
+
     keys = key.get_pressed()
     window.blit(back,(x_bg,0))
     window.blit(back,(x_bg - win_width,0))
@@ -226,8 +225,6 @@ while run:
             jumping = True 
             jump.play() 
             mariojump
-
-
 
     else:
         if jump_count >= -jump_height:
@@ -253,22 +250,23 @@ while run:
 
     monsters.update()
     monsters.draw(window)
-
+    lakiblocks.draw(window)
     mario.update()
-    mario.check_collisions_down()
-    lakiblock.update()
-    lakiblock.reset()
+    mario.check_collisions_down(blocks)
     blocks.update()
     blocks.draw(window)
     mario.animation()
-    if monster.rect.x <=0:
-        for i in range(1): 
-            monster = Enemy(bullet, bullet_x-100, 470, 50, 50, 5) 
-            monsters.add(monster) 
-            monster = Enemy(bullet, bullet_x + 150 ,360, 50, 50, 5) 
-            monsters.add(monster)  
-            monster = Enemy(bullet, bullet_x -300 ,390, 50, 50, 5) 
-            monsters.add(monster)       
+    for block in blocks:
+            if lakiblock.rect.colliderect(block.rect):
+                if lakiblock.rect.bottom-5 >= block.rect.top and lakiblock.rect.bottom <= block.rect.bottom:
+                    lakiblock_x=randint(100,1100)
+                    lakiblock_y=randint(140,440)
+                if  not lakiblock.rect.bottom-5 >= block.rect.top and lakiblock.rect.bottom <= block.rect.bottom:
+                    lakiblock_x=randint(100,1100)
+                    lakiblock_y=randint(140,440)
+
+    
+
     # Перевірка закінчення фону в обидва боки
 
     time.delay(40)
